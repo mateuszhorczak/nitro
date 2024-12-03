@@ -10,7 +10,8 @@ import { Server } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { parentPort, threadId } from "node:worker_threads";
-import wsAdapter from "crossws/adapters/node";
+import nodeWsAdapter from "crossws/adapters/node";
+import bunWsAdapter from "crossws/adapters/bun"
 import {
   defineEventHandler,
   getQuery,
@@ -26,7 +27,9 @@ const server = new Server(toNodeListener(nitroApp.h3App));
 
 // https://crossws.unjs.io/adapters/node
 if (import.meta._websocket) {
-  const { handleUpgrade } = wsAdapter(nitroApp.h3App.websocket);
+  const { handleUpgrade } = process.versions.bun
+  ?bunWsAdapter(nitroApp.h3App.websocket)
+      :nodeWsAdapter(nitroApp.h3App.websocket);
   server.on("upgrade", handleUpgrade);
 }
 
